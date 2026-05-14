@@ -8,36 +8,43 @@ import 'library.dart';
 
 final Pointer<Void> Function(Pointer<Void>, int) _vector_get_value = library
     .lookup<NativeFunction<Pointer<Void> Function(Pointer<Void>, Size)>>(
-        'yandex_maps_flutter_vector_get_value')
+      'yandex_maps_flutter_vector_get_value',
+    )
     .asFunction(isLeaf: true);
 
 final int Function(Pointer<Void>) _vector_get_size = library
     .lookup<NativeFunction<Size Function(Pointer<Void>)>>(
-        'yandex_maps_flutter_vector_get_size')
+      'yandex_maps_flutter_vector_get_size',
+    )
     .asFunction(isLeaf: true);
 
 final Pointer<Void> Function(Pointer<Pointer<Void>>, int) _vector_new = library
     .lookup<
-        NativeFunction<
-            Pointer<Void> Function(Pointer<Pointer<Void>>,
-                Size)>>('yandex_maps_flutter_vector_new')
+      NativeFunction<Pointer<Void> Function(Pointer<Pointer<Void>>, Size)>
+    >('yandex_maps_flutter_vector_new')
     .asFunction(isLeaf: true);
 
-final _vector_free_native =
-    library.lookup<NativeFunction<Void Function(Pointer<Void>)>>(
-        'yandex_maps_flutter_vector_free');
+final _vector_free_native = library
+    .lookup<NativeFunction<Void Function(Pointer<Void>)>>(
+      'yandex_maps_flutter_vector_free',
+    );
 
-final void Function(Pointer<Void>) _vector_free =
-    _vector_free_native.asFunction(isLeaf: true);
+final void Function(Pointer<Void>) _vector_free = _vector_free_native
+    .asFunction(isLeaf: true);
 
 class Vector<T> extends ListBase<T> implements Finalizable {
   @internal
-  Vector(this._ptr, this._f) : length = _vector_get_size(_ptr) {
+  Vector(Pointer<Void> ptr, this._f)
+    : _ptr = ptr,
+      _length = _vector_get_size(ptr) {
     _finalizer.attach(this, _ptr, detach: this);
   }
 
   @override
   set length(int _) => throw UnsupportedError("Vector read-only");
+
+  @override
+  int get length => _length;
 
   @override
   T operator [](int index) {
@@ -57,14 +64,14 @@ class Vector<T> extends ListBase<T> implements Finalizable {
   static final _finalizer = NativeFinalizer(_vector_free_native);
   final Pointer<Void> _ptr;
   final T Function(Pointer<Void>) _f;
-
-  @override
-  final length;
+  final int _length;
 }
 
 @internal
 Pointer<Void> toNativeVector<T>(
-    List<T> obj, Pointer<Void> Function(T val) toNative) {
+  List<T> obj,
+  Pointer<Void> Function(T val) toNative,
+) {
   if (obj is Vector<T>) {
     return obj._ptr;
   }
